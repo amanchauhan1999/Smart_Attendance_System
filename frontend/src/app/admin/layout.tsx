@@ -14,15 +14,16 @@ const adminNav = [
 ];
 
 function AdminGuard({ children }: { children: React.ReactNode }) {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, mounted } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    if (!mounted) return;
     if (!isAuthenticated) { router.push('/login'); return; }
     if (user?.role !== 'ADMIN') { router.push('/login'); }
-  }, [isAuthenticated, user, router]);
+  }, [mounted, isAuthenticated, user, router]);
 
-  if (!isAuthenticated || user?.role !== 'ADMIN') return null;
+  if (!mounted || !isAuthenticated || user?.role !== 'ADMIN') return null;
 
   return (
     <div className="flex min-h-screen">

@@ -12,15 +12,16 @@ const studentNav = [
 ];
 
 function StudentGuard({ children }: { children: React.ReactNode }) {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, mounted } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    if (!mounted) return;
     if (!isAuthenticated) { router.push('/login'); return; }
     if (user?.role !== 'STUDENT') { router.push('/login'); }
-  }, [isAuthenticated, user, router]);
+  }, [mounted, isAuthenticated, user, router]);
 
-  if (!isAuthenticated) return null;
+  if (!mounted || !isAuthenticated) return null;
 
   return (
     <div className="flex min-h-screen">
