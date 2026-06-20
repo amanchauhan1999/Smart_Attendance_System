@@ -16,4 +16,4 @@ RUN wget -q http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2 \
 
 COPY . .
 EXPOSE 5000
-CMD ["python", "app.py"]
+CMD ["python", "face_reconization_service.py"]

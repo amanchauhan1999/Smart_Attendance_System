@@ -41,7 +41,7 @@ def load_known_faces():
     known_face_encodings = []
     known_face_metadata = []
 
-    uploads_path = "/home/aman-singh/IdeaProjects/smart-attendance-backend/src/main/resources/static/uploads/*.jpg"
+    uploads_path = os.environ.get("UPLOADS_PATH", "/app/uploads") + "/*.jpg"
 
     image_files = glob.glob(uploads_path)
     print(f"📁 Found {len(image_files)} image files")
