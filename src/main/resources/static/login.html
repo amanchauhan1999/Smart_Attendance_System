@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Smart Attendance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: #0a0a1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                linear-gradient(rgba(0,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,255,255,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 0;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(0,255,255,0.8), transparent);
+            animation: scanLine 3s linear infinite;
+            z-index: 1000;
+        }
+        @keyframes scanLine {
+            0% { top: -2px; }
+            100% { top: 100vh; }
+        }
+        .login-container {
+            position: relative;
+            z-index: 1;
+            width: 90%;
+            max-width: 420px;
+            padding: 40px 35px;
+            background: rgba(10, 15, 40, 0.85);
+            border: 1px solid rgba(0, 255, 255, 0.15);
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 40px rgba(0,255,255,0.08), inset 0 0 60px rgba(0,255,255,0.03);
+        }
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: 20%; right: 20%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+        }
+        h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #00ffff, #00aaff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: none;
+            letter-spacing: 3px;
+        }
+        .subtitle {
+            text-align: center;
+            color: rgba(0,255,255,0.5);
+            font-size: 0.85rem;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .form-group label {
+            display: block;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            color: rgba(0,255,255,0.6);
+            margin-bottom: 6px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0,255,255,0.05);
+            border: 1px solid rgba(0,255,255,0.15);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        .form-group input:focus {
+            border-color: rgba(0,255,255,0.5);
+            box-shadow: 0 0 15px rgba(0,255,255,0.1);
+            background: rgba(0,255,255,0.08);
+        }
+        .form-group input::placeholder {
+            color: rgba(255,255,255,0.2);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, rgba(0,255,255,0.15), rgba(0,170,255,0.15));
+            border: 1px solid rgba(0,255,255,0.4);
+            border-radius: 8px;
+            color: #00ffff;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+        .login-btn:hover {
+            background: linear-gradient(135deg, rgba(0,255,255,0.25), rgba(0,170,255,0.25));
+            box-shadow: 0 0 30px rgba(0,255,255,0.2);
+            transform: translateY(-1px);
+        }
+        .login-btn:active {
+            transform: translateY(0);
+        }
+        .links {
+            text-align: center;
+            margin-top: 24px;
+        }
+        .links a {
+            color: rgba(0,255,255,0.5);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s;
+        }
+        .links a:hover {
+            color: #00ffff;
+        }
+        .error-msg {
+            display: none;
+            background: rgba(255,50,50,0.1);
+            border: 1px solid rgba(255,50,50,0.3);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+        }
+        .role-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .role-toggle button {
+            flex: 1;
+            padding: 10px;
+            background: rgba(0,255,255,0.05);
+            border: 1px solid rgba(0,255,255,0.15);
+            border-radius: 8px;
+            color: rgba(255,255,255,0.4);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+        .role-toggle button.active {
+            background: rgba(0,255,255,0.15);
+            border-color: rgba(0,255,255,0.5);
+            color: #00ffff;
+            box-shadow: 0 0 15px rgba(0,255,255,0.1);
+        }
+        @media (max-width: 480px) {
+            .login-container { padding: 30px 20px; }
+            h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>LOGIN</h1>
+        <p class="subtitle">Smart Attendance System</p>
+
+        <div class="error-msg" id="errorMsg"></div>
+
+        <div class="role-toggle">
+            <button class="active" onclick="setRole('TEACHER')">Teacher</button>
+            <button onclick="setRole('ADMIN')">Admin</button>
+        </div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="username" placeholder="Enter username" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter password" required>
+            </div>
+            <button type="submit" class="login-btn">Access System</button>
+        </form>
+
+        <div class="links">
+            <a href="/register-teacher.html">Register Teacher</a> &nbsp;|&nbsp;
+            <a href="/register.html">Register Student</a>
+        </div>
+    </div>
+
+    <script>
+        let selectedRole = 'TEACHER';
+
+        function setRole(role) {
+            selectedRole = role;
+            document.querySelectorAll('.role-toggle button').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.trim().toUpperCase() === role);
+            });
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.style.display = 'none';
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.message || 'Login failed');
+                }
+
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('role', data.role);
+                localStorage.setItem('fullName', data.fullName);
+                localStorage.setItem('username', data.username);
+
+                if (data.role === 'ADMIN' || data.role === 'TEACHER') {
+                    window.location.href = '/dashboard.html';
+                } else {
+                    window.location.href = '/attendance.html';
+                }
+            } catch (err) {
+                errorMsg.textContent = err.message;
+                errorMsg.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,25 +1,29 @@
 package com.school.smart_attendance_backend.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- * CORS configuration to allow frontend to access backend APIs
- */
 @Configuration
 public class CorsConfig {
+
+    @Value("${CORS_ORIGINS:http://localhost:3000}")
+    private String allowedOrigins;
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
+                String[] origins = allowedOrigins.split(",");
                 registry.addMapping("/**")
-                        .allowedOrigins("*")
+                        .allowedOrigins(origins)
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*");
+                        .allowedHeaders("Authorization", "Content-Type", "X-Requested-With")
+                        .exposedHeaders("Authorization")
+                        .allowCredentials(true);
             }
         };
     }

@@ -1,6 +1,8 @@
 package com.school.smart_attendance_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,55 +15,42 @@ public class AttendanceLog {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id")
+    @JsonIgnoreProperties({"attendanceLogs", "hibernateLazyInitializer"})
     private Student student;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "teacher_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer"})
+    private Teacher teacher;
 
     private LocalDateTime timestamp = LocalDateTime.now();
 
-    private String status; // e.g., "Present" or "Absent"
+    private LocalDate date = LocalDate.now();
 
-    private Integer blinkCount; // Face detection info
+    private String status;
 
-    // Default constructor
+    private Integer blinkCount;
+
     public AttendanceLog() {}
 
-    // Getters and setters
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Student getStudent() { return student; }
+    public void setStudent(Student student) { this.student = student; }
 
-    public Student getStudent() {
-        return student;
-    }
+    public Teacher getTeacher() { return teacher; }
+    public void setTeacher(Teacher teacher) { this.teacher = teacher; }
 
-    public void setStudent(Student student) {
-        this.student = student;
-    }
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
 
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
+    public LocalDate getDate() { return date; }
+    public void setDate(LocalDate date) { this.date = date; }
 
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Integer getBlinkCount() {
-        return blinkCount;
-    }
-
-    public void setBlinkCount(Integer blinkCount) {
-        this.blinkCount = blinkCount;
-    }
+    public Integer getBlinkCount() { return blinkCount; }
+    public void setBlinkCount(Integer blinkCount) { this.blinkCount = blinkCount; }
 }

@@ -1,0 +1,57 @@
+services:
+  # Spring Boot Backend
+  - type: web
+    name: smart-attendance-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PYTHON_SERVICE_URL
+        fromService:
+          name: python-face-service
+          type: web
+          property: url
+      - key: CORS_ORIGINS
+        fromService:
+          name: smart-attendance-frontend
+          type: web
+          property: url
+      - key: JAVA_OPTS
+        value: "-Xms256m -Xmx512m"
+    healthCheckPath: /api/auth/login
+    autoDeploy: true
+
+  # Python Flask Face Service
+  - type: web
+    name: python-face-service
+    runtime: docker
+    dockerfilePath: ./python-service/Dockerfile
+    dockerContext: ./python-service
+    envVars:
+      - key: FLASK_ENV
+        value: production
+    autoDeploy: true
+
+  # Next.js Frontend
+  - type: web
+    name: smart-attendance-frontend
+    runtime: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          name: smart-attendance-backend
+          type: web
+          property: url
+    autoDeploy: true
