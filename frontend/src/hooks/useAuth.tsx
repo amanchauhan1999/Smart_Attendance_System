@@ -32,8 +32,14 @@ function getStoredUser(): User | null {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(getStoredUser);
+  const [user, setUser] = useState<User | null>(null);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setUser(getStoredUser());
+    setMounted(true);
+  }, []);
 
   const login = (data: User) => {
     localStorage.setItem('jwt_token', data.token);

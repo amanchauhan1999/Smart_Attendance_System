@@ -118,21 +118,6 @@ export default function LoginPage() {
         </CardContent>
       </Card>
 
-      <style jsx global>{`
-        @keyframes cardEntry {
-          0% { opacity: 0; transform: translateY(30px) scale(0.96); }
-          100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @keyframes glow {
-          0% { box-shadow: 0 0 20px rgba(0,255,163,0.1); }
-          100% { box-shadow: 0 0 50px rgba(0,255,163,0.2); }
-        }
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-5px); }
-          75% { transform: translateX(5px); }
-        }
-      `}</style>
     </div>
   );
 }
