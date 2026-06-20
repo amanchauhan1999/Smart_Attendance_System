@@ -18,31 +18,29 @@ export default function StudentAttendancePage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400 font-mono">
-        MY ATTENDANCE
-      </h1>
+      <h1 className="text-xl font-bold text-slate-900">My Attendance</h1>
 
-      <Card className="border-cyan-500/20 bg-slate-950/60 backdrop-blur-sm">
-        <CardHeader><CardTitle className="text-sm tracking-widest uppercase text-cyan-400">All Records ({logs.length})</CardTitle></CardHeader>
+      <Card className="border-slate-200 bg-white">
+        <CardHeader><CardTitle className="text-sm tracking-widest uppercase text-slate-500">All Records ({logs.length})</CardTitle></CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow className="border-slate-800">
-                <TableHead className="text-cyan-400 text-xs">#</TableHead>
-                <TableHead className="text-cyan-400 text-xs">Date</TableHead>
-                <TableHead className="text-cyan-400 text-xs">Status</TableHead>
-                <TableHead className="text-cyan-400 text-xs">Time</TableHead>
-                <TableHead className="text-cyan-400 text-xs">Blinks</TableHead>
+              <TableRow className="border-slate-200">
+                <TableHead className="text-slate-500 text-xs">#</TableHead>
+                <TableHead className="text-slate-500 text-xs">Date</TableHead>
+                <TableHead className="text-slate-500 text-xs">Status</TableHead>
+                <TableHead className="text-slate-500 text-xs">Time</TableHead>
+                <TableHead className="text-slate-500 text-xs">Blinks</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {logs.map((log, i) => (
-                <TableRow key={log.id} className="border-slate-800/50">
-                  <TableCell className="text-slate-500">{i + 1}</TableCell>
-                  <TableCell className="text-slate-300">{log.date || '-'}</TableCell>
-                  <TableCell><Badge className="bg-cyan-400/10 text-cyan-400 border-cyan-400/30">{log.status}</Badge></TableCell>
-                  <TableCell className="text-slate-400">{log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : '-'}</TableCell>
-                  <TableCell className="text-slate-400">{log.blinkCount || '-'}</TableCell>
+                <TableRow key={log.id} className="border-slate-100">
+                  <TableCell className="text-slate-400">{i + 1}</TableCell>
+                  <TableCell className="text-slate-900">{log.date || '-'}</TableCell>
+                  <TableCell><Badge className={log.status === 'PRESENT' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}>{log.status}</Badge></TableCell>
+                  <TableCell className="text-slate-500">{log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : '-'}</TableCell>
+                  <TableCell className="text-slate-500">{log.blinkCount || '-'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

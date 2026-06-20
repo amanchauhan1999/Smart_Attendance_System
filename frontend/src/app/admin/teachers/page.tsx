@@ -1,27 +1,21 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import api from '@/lib/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
 
-interface Teacher {
-  id: number; username: string; fullName: string; email: string; role: string; isActive: boolean;
-}
+interface Teacher { id: number; username: string; fullName: string; email: string; role: string; isActive: boolean; }
 
 export default function AdminTeachersPage() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ username: '', password: '', fullName: '', email: '', role: 'TEACHER' });
   const [editTeacher, setEditTeacher] = useState<Teacher | null>(null);
   const [editForm, setEditForm] = useState({ fullName: '', email: '', role: 'TEACHER', password: '' });
   const [addMsg, setAddMsg] = useState('');
   const [editMsg, setEditMsg] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 5;
 
   useEffect(() => { loadTeachers(); }, []);
 
@@ -30,20 +24,22 @@ export default function AdminTeachersPage() {
     setTeachers(res.data);
   };
 
+  const filtered = teachers.filter(t =>
+    t.fullName.toLowerCase().includes(search.toLowerCase()) ||
+    t.username.toLowerCase().includes(search.toLowerCase())
+  );
+  const totalPages = Math.ceil(filtered.length / perPage);
+  const paginated = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
+
   const handleAdd = async () => {
-    if (!form.username || !form.password || !form.fullName) {
-      setAddMsg('Username, password and name are required');
-      return;
-    }
+    if (!form.username || !form.password || !form.fullName) { setAddMsg('Username, password and name are required'); return; }
     try {
       await api.post('/api/admin/teachers', form);
       setShowAdd(false);
       setForm({ username: '', password: '', fullName: '', email: '', role: 'TEACHER' });
       setAddMsg('');
       loadTeachers();
-    } catch (e: any) {
-      setAddMsg(e.response?.data?.message || 'Failed to add teacher');
-    }
+    } catch (e: any) { setAddMsg(e.response?.data?.message || 'Failed to add teacher'); }
   };
 
   const handleDelete = async (id: number) => {
@@ -52,115 +48,131 @@ export default function AdminTeachersPage() {
     loadTeachers();
   };
 
-  const openEdit = (t: Teacher) => {
-    setEditTeacher(t);
-    setEditForm({ fullName: t.fullName, email: t.email || '', role: t.role, password: '' });
-  };
+  const openEdit = (t: Teacher) => { setEditTeacher(t); setEditForm({ fullName: t.fullName, email: t.email || '', role: t.role, password: '' }); };
 
   const handleUpdate = async () => {
     if (!editTeacher) return;
     try {
-      const updates: Record<string, any> = {
-        fullName: editForm.fullName,
-        email: editForm.email,
-        role: editForm.role,
-      };
+      const updates: Record<string, any> = { fullName: editForm.fullName, email: editForm.email, role: editForm.role };
       if (editForm.password) updates.password = editForm.password;
       await api.put(`/api/admin/teachers/${editTeacher.id}`, updates);
-      setEditTeacher(null);
-      setEditMsg('');
-      loadTeachers();
-    } catch (e: any) {
-      setEditMsg(e.response?.data?.message || 'Failed to update teacher');
-    }
+      setEditTeacher(null); setEditMsg(''); loadTeachers();
+    } catch (e: any) { setEditMsg(e.response?.data?.message || 'Failed to update teacher'); }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400 font-mono">
-          MANAGE TEACHERS
+        <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+          <svg className="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342" /></svg>
+          Manage Teachers
         </h1>
-        <Button onClick={() => setShowAdd(true)} className="bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-bold">+ Add Teacher</Button>
+        <button onClick={() => setShowAdd(true)} className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-colors">+ Add Teacher</button>
       </div>
 
-      <Card className="border-cyan-500/20 bg-slate-950/60 backdrop-blur-sm">
-        <CardHeader><CardTitle className="text-sm tracking-widest uppercase text-cyan-400">All Teachers ({teachers.length})</CardTitle></CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-slate-800">
-                <TableHead className="text-cyan-400 text-xs">Name</TableHead>
-                <TableHead className="text-cyan-400 text-xs">Username</TableHead>
-                <TableHead className="text-cyan-400 text-xs">Email</TableHead>
-                <TableHead className="text-cyan-400 text-xs">Role</TableHead>
-                <TableHead className="text-cyan-400 text-xs">Status</TableHead>
-                <TableHead className="text-cyan-400 text-xs">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {teachers.map((t) => (
-                <TableRow key={t.id} className="border-slate-800/50">
-                  <TableCell className="text-slate-300">{t.fullName}</TableCell>
-                  <TableCell className="text-slate-400">{t.username}</TableCell>
-                  <TableCell className="text-slate-400">{t.email || '-'}</TableCell>
-                  <TableCell className="text-cyan-400">{t.role}</TableCell>
-                  <TableCell>
-                    <Badge className={t.isActive ? 'bg-emerald-400/10 text-emerald-400 border-emerald-400/30' : 'bg-red-400/10 text-red-400 border-red-400/30'}>
-                      {t.isActive ? 'Active' : 'Inactive'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" className="border-slate-700 text-slate-400 hover:text-cyan-400 hover:border-cyan-400/30" onClick={() => openEdit(t)}>Edit</Button>
-                      <Button size="sm" variant="outline" className="border-slate-700 text-slate-400 hover:text-red-400 hover:border-red-400/30" onClick={() => handleDelete(t.id)}>Delete</Button>
+      <div className="bg-white rounded-xl border border-slate-200">
+        <div className="px-6 py-3 border-b border-slate-200 flex items-center justify-between">
+          <div className="relative max-w-xs">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+            <input type="text" placeholder="Search teachers..." value={search} onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }} className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500" />
+          </div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-slate-200">
+                <th className="text-left px-6 py-3 text-xs font-medium text-slate-400 uppercase">#</th>
+                <th className="text-left px-6 py-3 text-xs font-medium text-slate-400 uppercase">Teacher</th>
+                <th className="text-left px-6 py-3 text-xs font-medium text-slate-400 uppercase">Username</th>
+                <th className="text-left px-6 py-3 text-xs font-medium text-slate-400 uppercase">Email</th>
+                <th className="text-left px-6 py-3 text-xs font-medium text-slate-400 uppercase">Role</th>
+                <th className="text-left px-6 py-3 text-xs font-medium text-slate-400 uppercase">Status</th>
+                <th className="text-left px-6 py-3 text-xs font-medium text-slate-400 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginated.length === 0 ? (
+                <tr><td colSpan={7} className="px-6 py-12 text-center text-slate-400">No teachers found</td></tr>
+              ) : paginated.map((t, i) => (
+                <tr key={t.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                  <td className="px-6 py-3 text-sm text-slate-400 font-medium">{String((currentPage - 1) * perPage + i + 1).padStart(2, '0')}</td>
+                  <td className="px-6 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-600">{t.fullName[0]}</div>
+                      <span className="text-sm font-medium text-slate-900">{t.fullName}</span>
                     </div>
-                  </TableCell>
-                </TableRow>
+                  </td>
+                  <td className="px-6 py-3 text-sm text-slate-500">{t.username}</td>
+                  <td className="px-6 py-3 text-sm text-slate-500">{t.email || '-'}</td>
+                  <td className="px-6 py-3 text-sm text-indigo-600">{t.role}</td>
+                  <td className="px-6 py-3">
+                    <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${t.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>{t.isActive ? 'Active' : 'Inactive'}</span>
+                  </td>
+                  <td className="px-6 py-3">
+                    <div className="flex gap-2">
+                      <button onClick={() => openEdit(t)} className="px-3 py-1.5 rounded-lg text-xs border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-300 transition-colors">Edit</button>
+                      <button onClick={() => handleDelete(t.id)} className="px-3 py-1.5 rounded-lg text-xs border border-slate-200 text-slate-500 hover:text-rose-600 hover:border-rose-300 transition-colors">Delete</button>
+                    </div>
+                  </td>
+                </tr>
               ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      <Dialog open={showAdd} onOpenChange={setShowAdd}>
-        <DialogContent className="bg-slate-950 border-cyan-500/20">
-          <DialogHeader><DialogTitle className="text-cyan-400 tracking-wider">Add Teacher</DialogTitle></DialogHeader>
-          <div className="space-y-4">
-            <div><Label className="text-slate-400 text-xs">Full Name *</Label><Input value={form.fullName} onChange={(e) => setForm({...form, fullName: e.target.value})} className="bg-slate-900/50 border-slate-700/50 text-white" /></div>
-            <div><Label className="text-slate-400 text-xs">Username *</Label><Input value={form.username} onChange={(e) => setForm({...form, username: e.target.value})} className="bg-slate-900/50 border-slate-700/50 text-white" /></div>
-            <div><Label className="text-slate-400 text-xs">Email</Label><Input value={form.email} onChange={(e) => setForm({...form, email: e.target.value})} className="bg-slate-900/50 border-slate-700/50 text-white" /></div>
-            <div><Label className="text-slate-400 text-xs">Password *</Label><Input type="password" value={form.password} onChange={(e) => setForm({...form, password: e.target.value})} className="bg-slate-900/50 border-slate-700/50 text-white" /></div>
-            <div><Label className="text-slate-400 text-xs">Role</Label>
-              <select value={form.role} onChange={(e) => setForm({...form, role: e.target.value})} className="w-full p-3 rounded-lg bg-slate-900/50 border border-slate-700/50 text-white">
-                <option value="TEACHER">TEACHER</option>
-                <option value="ADMIN">ADMIN (HOD)</option>
-              </select>
-            </div>
-            {addMsg && <p className="text-red-400 text-sm text-center">{addMsg}</p>}
-            <Button onClick={handleAdd} className="w-full bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-bold">Add Teacher</Button>
+            </tbody>
+          </table>
+        </div>
+        <div className="px-6 py-3 border-t border-slate-200 flex items-center justify-between">
+          <p className="text-sm text-slate-500">Showing {filtered.length === 0 ? 0 : (currentPage - 1) * perPage + 1} to {Math.min(currentPage * perPage, filtered.length)} of {filtered.length} entries</p>
+          <div className="flex items-center gap-1">
+            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-3 py-1.5 rounded-lg text-sm border border-slate-200 text-slate-500 hover:bg-slate-100 disabled:opacity-40">Prev</button>
+            {Array.from({ length: Math.max(1, totalPages) }, (_, i) => i + 1).slice(0, 5).map(p => (
+              <button key={p} onClick={() => setCurrentPage(p)} className={`w-8 h-8 rounded-lg text-sm font-medium ${currentPage === p ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:bg-slate-100'}`}>{p}</button>
+            ))}
+            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage >= totalPages} className="px-3 py-1.5 rounded-lg text-sm border border-slate-200 text-slate-500 hover:bg-slate-100 disabled:opacity-40">Next</button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </div>
 
-      <Dialog open={!!editTeacher} onOpenChange={() => { setEditTeacher(null); setEditMsg(''); }}>
-        <DialogContent className="bg-slate-950 border-cyan-500/20">
-          <DialogHeader><DialogTitle className="text-cyan-400 tracking-wider">Edit Teacher</DialogTitle></DialogHeader>
-          <div className="space-y-4">
-            <div><Label className="text-slate-400 text-xs">Full Name</Label><Input value={editForm.fullName} onChange={(e) => setEditForm({...editForm, fullName: e.target.value})} className="bg-slate-900/50 border-slate-700/50 text-white" /></div>
-            <div><Label className="text-slate-400 text-xs">Email</Label><Input value={editForm.email} onChange={(e) => setEditForm({...editForm, email: e.target.value})} className="bg-slate-900/50 border-slate-700/50 text-white" /></div>
-            <div><Label className="text-slate-400 text-xs">Role</Label>
-              <select value={editForm.role} onChange={(e) => setEditForm({...editForm, role: e.target.value})} className="w-full p-3 rounded-lg bg-slate-900/50 border border-slate-700/50 text-white">
-                <option value="TEACHER">TEACHER</option>
-                <option value="ADMIN">ADMIN (HOD)</option>
-              </select>
+      {showAdd && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setShowAdd(false)}>
+          <div className="bg-white border border-slate-200 rounded-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-slate-900 mb-4">Add Teacher</h2>
+            <div className="space-y-3">
+              <div><label className="text-xs text-slate-500">Full Name *</label><input value={form.fullName} onChange={(e) => setForm({...form, fullName: e.target.value})} className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900" /></div>
+              <div><label className="text-xs text-slate-500">Username *</label><input value={form.username} onChange={(e) => setForm({...form, username: e.target.value})} className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900" /></div>
+              <div><label className="text-xs text-slate-500">Email</label><input value={form.email} onChange={(e) => setForm({...form, email: e.target.value})} className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900" /></div>
+              <div><label className="text-xs text-slate-500">Password *</label><input type="password" value={form.password} onChange={(e) => setForm({...form, password: e.target.value})} className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900" /></div>
+              <div><label className="text-xs text-slate-500">Role</label>
+                <select value={form.role} onChange={(e) => setForm({...form, role: e.target.value})} className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900">
+                  <option value="TEACHER">TEACHER</option>
+                  <option value="ADMIN">ADMIN (HOD)</option>
+                </select>
+              </div>
+              {addMsg && <p className="text-rose-600 text-sm text-center">{addMsg}</p>}
+              <button onClick={handleAdd} className="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-colors">Add Teacher</button>
             </div>
-            <div><Label className="text-slate-400 text-xs">New Password (leave blank to keep current)</Label><Input type="password" value={editForm.password} onChange={(e) => setEditForm({...editForm, password: e.target.value})} className="bg-slate-900/50 border-slate-700/50 text-white" /></div>
-            {editMsg && <p className="text-red-400 text-sm text-center">{editMsg}</p>}
-            <Button onClick={handleUpdate} className="w-full bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-bold">Save Changes</Button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
+
+      {editTeacher && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setEditTeacher(null)}>
+          <div className="bg-white border border-slate-200 rounded-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-slate-900 mb-4">Edit Teacher</h2>
+            <div className="space-y-3">
+              <div><label className="text-xs text-slate-500">Full Name</label><input value={editForm.fullName} onChange={(e) => setEditForm({...editForm, fullName: e.target.value})} className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900" /></div>
+              <div><label className="text-xs text-slate-500">Email</label><input value={editForm.email} onChange={(e) => setEditForm({...editForm, email: e.target.value})} className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900" /></div>
+              <div><label className="text-xs text-slate-500">Role</label>
+                <select value={editForm.role} onChange={(e) => setEditForm({...editForm, role: e.target.value})} className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900">
+                  <option value="TEACHER">TEACHER</option>
+                  <option value="ADMIN">ADMIN (HOD)</option>
+                </select>
+              </div>
+              <div><label className="text-xs text-slate-500">New Password (leave blank to keep)</label><input type="password" value={editForm.password} onChange={(e) => setEditForm({...editForm, password: e.target.value})} className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900" /></div>
+              {editMsg && <p className="text-rose-600 text-sm text-center">{editMsg}</p>}
+              <button onClick={handleUpdate} className="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-colors">Save Changes</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

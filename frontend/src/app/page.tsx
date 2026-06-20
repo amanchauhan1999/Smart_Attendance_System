@@ -21,8 +21,8 @@ export default function Home() {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-cyan-400 text-xl animate-pulse">Loading...</div>
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="text-indigo-600 text-xl animate-pulse">Loading...</div>
     </div>
   );
 }

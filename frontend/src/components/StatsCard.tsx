@@ -12,12 +12,12 @@ interface StatsCardProps {
 }
 
 const colorMap = {
-  indigo: { iconBg: 'bg-indigo-500', border: 'border-slate-700/50', cardBg: 'bg-slate-800/50' },
-  teal: { iconBg: 'bg-teal-500', border: 'border-slate-700/50', cardBg: 'bg-slate-800/50' },
-  amber: { iconBg: 'bg-amber-500', border: 'border-slate-700/50', cardBg: 'bg-slate-800/50' },
-  purple: { iconBg: 'bg-violet-500', border: 'border-slate-700/50', cardBg: 'bg-slate-800/50' },
-  emerald: { iconBg: 'bg-emerald-500', border: 'border-slate-700/50', cardBg: 'bg-slate-800/50' },
-  rose: { iconBg: 'bg-rose-500', border: 'border-slate-700/50', cardBg: 'bg-slate-800/50' },
+  indigo: { iconBg: 'bg-indigo-100', iconText: 'text-indigo-600', border: 'border-slate-200', cardBg: 'bg-white' },
+  teal: { iconBg: 'bg-teal-100', iconText: 'text-teal-600', border: 'border-slate-200', cardBg: 'bg-white' },
+  amber: { iconBg: 'bg-amber-100', iconText: 'text-amber-600', border: 'border-slate-200', cardBg: 'bg-white' },
+  purple: { iconBg: 'bg-violet-100', iconText: 'text-violet-600', border: 'border-slate-200', cardBg: 'bg-white' },
+  emerald: { iconBg: 'bg-emerald-100', iconText: 'text-emerald-600', border: 'border-slate-200', cardBg: 'bg-white' },
+  rose: { iconBg: 'bg-rose-100', iconText: 'text-rose-600', border: 'border-slate-200', cardBg: 'bg-white' },
 };
 
 export default function StatsCard({ label, value, icon, href, trend, color = 'indigo' }: StatsCardProps) {
@@ -27,14 +27,14 @@ export default function StatsCard({ label, value, icon, href, trend, color = 'in
   return (
     <div
       onClick={() => href && router.push(href)}
-      className={`${c.cardBg} rounded-xl border ${c.border} p-5 flex items-center gap-4 transition-all duration-200 hover:border-slate-600 ${href ? 'cursor-pointer hover:-translate-y-0.5' : ''}`}
+      className={`${c.cardBg} rounded-xl border ${c.border} p-5 flex items-center gap-4 transition-all duration-200 hover:border-slate-300 hover:shadow-sm ${href ? 'cursor-pointer hover:-translate-y-0.5' : ''}`}
     >
-      <div className={`w-14 h-14 rounded-xl ${c.iconBg} flex items-center justify-center text-white flex-shrink-0`}>
+      <div className={`w-14 h-14 rounded-xl ${c.iconBg} flex items-center justify-center ${c.iconText} flex-shrink-0`}>
         {icon}
       </div>
       <div>
-        <p className="text-2xl font-bold text-white">{value}</p>
-        <p className="text-slate-400 text-sm">{label}</p>
+        <p className="text-2xl font-bold text-slate-900">{value}</p>
+        <p className="text-slate-500 text-sm">{label}</p>
       </div>
     </div>
   );

@@ -24,7 +24,7 @@ function StudentGuard({ children }: { children: React.ReactNode }) {
   if (!mounted || !isAuthenticated) return null;
 
   return (
-    <div className="flex min-h-screen bg-slate-950">
+    <div className="flex min-h-screen bg-slate-50">
       <Sidebar items={studentNav} title="STUDENT" />
       <main className="flex-1 p-6 lg:p-8 overflow-auto">{children}</main>
     </div>
