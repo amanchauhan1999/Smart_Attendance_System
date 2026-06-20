@@ -36,6 +36,20 @@ build/
 python-service/venv/
 **/__pycache__/
 *.pyc
+*.dat
 
 # Runtime uploads (generated at runtime)
 src/main/resources/static/uploads/
+
+### Frontend ###
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+### Misc ###
+*.save
+*.bak
+*.swp
+AGENTS.md
+CLAUDE.md
+.env.local
